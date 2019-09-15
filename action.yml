@@ -1,0 +1,12 @@
+name: 'gqlmod check'
+description: 'Verifies GraphQL queries'
+author: 'astronouth7303'
+branding:
+  icon: 'check-circle'  
+  color: 'purple'
+inputs: 
+  GITHUB_TOKEN:
+    description: 'The GITHUB_TOKEN secret. Required to get line annotations.'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
