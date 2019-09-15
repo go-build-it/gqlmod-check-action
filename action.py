@@ -5,6 +5,7 @@ gqlmod.enable_gql_import()
 import json
 import os
 import pathlib
+import sys
 import traceback
 
 import gqlmod.importer
@@ -18,6 +19,67 @@ with open(os.environ['GITHUB_EVENT_PATH'], 'rt') as f:
 GIT_SHA = os.environ['GITHUB_SHA']
 
 REPO_ID = EVENT['repository']['node_id']
+
+
+class OutputManager:
+    """
+    Handles the output buffer and sending things to GitHub
+    """
+    def __init__(self, repo_id, sha):
+        self.repo_id = repo_id
+        self.git_sha = sha
+        self.annotations = []
+        self.output = ""
+        self.success = True
+        self.run_id = None
+
+    def write(self, s):
+        self.output += s
+        sys.stdout.write(s)
+        return len(s)
+
+    def annotate(self, fname, line, col, msg):
+        self.annotations.append({
+            'path': fname,
+            'location': {
+                'startLine': line,
+                'endLine': line,
+                'startColumn': col,
+                'endColumn': col,
+            },
+            'annotationLevel': 'FAILURE',
+            'message': msg,
+        })
+        self.success = False
+        if len(self.annotations) > 40:
+            self.flush()
+
+    def __enter__(self):
+        res = ghstatus.start_check_run(repo=self.repo_id, sha=self.git_sha)
+        assert not res.errors
+        self.run_id = res.data['createCheckRun']['checkRun']['id']
+        # FIXME: Handle the case if we don't have permissions
+
+    def __exit__(self, *_):
+        if self.success:
+            self.write("No problems found\n")
+        self.flush()
+        ghstatus.complete_check_run(
+            repo=self.repo_id,
+            checkrun=self.run_id,
+            state='SUCCESS' if self.success else 'FAILURE'
+        )
+
+    def flush(self):
+        res = ghstatus.append_check_run(
+            repo=self.repo_id,
+            checkrun=self.run_id,
+            text=self.output,
+            annotations=self.annotations,
+        )
+        assert not res.errors
+        self.annotations = []
+        self.output = ""
 
 
 def scan_files():
@@ -41,53 +103,7 @@ def scan_files():
 os.chdir(os.environ['GITHUB_WORKSPACE'])
 
 with gqlmod.with_provider('github', token=os.environ.get('INPUT_GITHUB_TOKEN', None)):
-    res = ghstatus.start_check_run(repo=REPO_ID, sha=GIT_SHA)
-    assert not res.errors
-    run_id = res.data['createCheckRun']['checkRun']['id']
-    # FIXME: Handle the case if we don't have permissions
-
-    annotations = []
-    text = ""
-
-    count = 0
-    for fname, line, col, msg in scan_files():
-        count += 1
-        line = f"{fname}:{line}:{col}:{msg}"
-        print(line)
-        annotations.append({
-            'path': fname,
-            'location': {
-                'startLine': line,
-                'endLine': line,
-                'startColumn': col,
-                'endColumn': col,
-            },
-            'annotationLevel': 'FAILURE',
-            'message': msg,
-        })
-        text += line + "\n"
-
-        if len(annotations) >= 40 and run_id:
-            res = ghstatus.append_check_run(
-                repo=REPO_ID,
-                checkrun=run_id,
-                text=text,
-                annotations=annotations,
-            )
-            assert not res.errors
-            annotations = []
-            text = ""
-
-    if run_id:
-        if not count:
-            res = ghstatus.append_check_run(
-                repo=REPO_ID,
-                checkrun=run_id,
-                text="No errors found\n",
-            )
-            assert not res.errors
-        ghstatus.complete_check_run(
-            repo=REPO_ID,
-            checkrun=run_id,
-            state='FAILURE' if count else 'SUCCESS'
-        )
+    with OutputManager() as output:
+        for fname, line, col, msg in scan_files():
+            print(f"{fname}:{line}:{col}:{msg}", file=output)
+            output.annotate(fname, line, col, msg)
