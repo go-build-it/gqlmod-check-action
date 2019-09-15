@@ -1,0 +1,41 @@
+#~github~
+
+mutation start_check_run($repo:ID!, $sha:GitObjectID!) {
+    createCheckRun(input: {
+        headSha: $sha
+        name: "gqlmod check"
+        repositoryId: $repo
+        status: IN_PROGRESS
+    }) {
+        checkRun {
+            id
+        }
+    }
+}
+
+mutation append_check_run($repo:ID!, $checkrun:ID!, $annotations:[CheckAnnotationData!]) {
+    updateCheckRun(input: {
+        repositoryId: $repo
+        checkRunId: $checkrun
+        output: {
+            title: "gqlmod check"
+            summary: "Running..."
+            annotations: $annotations
+        }
+    }) {
+    }
+}
+
+mutation complete_check_run($repo:ID!, $checkrun:ID!, $state:CheckConclusionState) {
+    updateCheckRun(input: {
+        repositoryId: $repo
+        checkRunId: $checkrun
+        status: COMPLETED
+        conclusion: $state  # Probably want either FAILURE or SUCCESS
+        output: {
+            title: "gqlmod check"
+            summary: "Finished"
+        }
+    }) {
+    }
+}
