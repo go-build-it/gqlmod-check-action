@@ -1,7 +1,4 @@
-#!/usr/local/bin/python -vvv
-import sys
-sys.path.insert(0, '/')
-
+#!/usr/local/bin/python
 import gqlmod
 gqlmod.enable_gql_import()
 
@@ -11,13 +8,6 @@ import pathlib
 import traceback
 
 import gqlmod.importer
-
-print(os.getcwd())
-print(os.listdir())
-for entry in sys.path:
-    if os.path.isdir(entry):
-        print(entry)
-        print(os.listdir(entry))
 
 import ghstatus
 
