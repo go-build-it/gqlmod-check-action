@@ -10,7 +10,6 @@ on: push
 
 jobs:
   check:
-    name: gqlmod check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
