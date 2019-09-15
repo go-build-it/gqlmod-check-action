@@ -17,13 +17,14 @@ with open(os.environ['GITHUB_EVENT_PATH'], 'rt') as f:
 
 GIT_SHA = os.environ['GITHUB_SHA']
 
-REPO_ID = EVENT['repository']['id']
+REPO_ID = EVENT['repository']['node_id']
 
 
 def scan_files():
     files = map(open, pathlib.Path().glob("**/*.gql"))
     for fobj in files:
         fname = fobj.name
+        print("Checking {fname}")
         try:
             for err in gqlmod.importer.scan_file(fname, fobj):
                 for loc in err.locations:
@@ -39,7 +40,6 @@ def scan_files():
 
 os.chdir(os.environ['GITHUB_WORKSPACE'])
 
-print(os.environ)
 with gqlmod.with_provider('github', token=os.environ.get('INPUT_GITHUB_TOKEN', None)):
     res = ghstatus.start_check_run(repo=REPO_ID, sha=GIT_SHA)
 
