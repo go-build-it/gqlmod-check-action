@@ -5,7 +5,7 @@ LABEL "homepage"="https://github.com/go-build-it/gqlmod"
 LABEL "maintainer"="Jamie Bliss <jamie@ivyleav.es>"
 
 RUN pip install --no-cache-dir --disable-pip-version-check \
-        "git+https://github.com/go-build-it/gqlmod.git@gca-debug#egg=gqlmod" \
+        "git+https://github.com/go-build-it/gqlmod.git@master#egg=gqlmod" \
         gqlmod-cirrusci gqlmod-github
 
 COPY LICENSE README.md *.py *.gql /
