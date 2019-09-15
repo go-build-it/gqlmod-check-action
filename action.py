@@ -1,4 +1,7 @@
 #!/usr/local/bin/python
+import sys
+sys.path.insert(0, '/')
+
 import gqlmod
 gqlmod.enable_gql_import()
 
