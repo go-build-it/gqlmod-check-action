@@ -24,7 +24,7 @@ def scan_files():
     files = map(open, pathlib.Path().glob("**/*.gql"))
     for fobj in files:
         fname = fobj.name
-        print("Checking {fname}")
+        print(f"Checking {fname}")
         try:
             for err in gqlmod.importer.scan_file(fname, fobj):
                 for loc in err.locations:
