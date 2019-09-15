@@ -74,7 +74,7 @@ with gqlmod.with_provider('github', token=os.environ.get('INPUT_GITHUB_TOKEN', N
             buffer = []
 
     if run_id:
-        ghstatus.append_check_run(
+        ghstatus.complete_check_run(
             repo=REPO_ID,
             checkrun=run_id,
             state='FAILURE' if count else 'SUCCESS'
