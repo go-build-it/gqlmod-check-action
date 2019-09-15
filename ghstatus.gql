@@ -23,6 +23,9 @@ mutation append_check_run($repo:ID!, $checkrun:ID!, $annotations:[CheckAnnotatio
             annotations: $annotations
         }
     }) {
+        checkRun {
+            id
+        }
     }
 }
 
@@ -37,5 +40,8 @@ mutation complete_check_run($repo:ID!, $checkrun:ID!, $state:CheckConclusionStat
             summary: "Finished"
         }
     }) {
+        checkRun {
+            id
+        }
     }
 }
