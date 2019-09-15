@@ -40,7 +40,7 @@ def scan_files():
 os.chdir(os.environ['GITHUB_WORKSPACE'])
 
 print(os.environ)
-with gqlmod.with_provider('github', token=os.environ.get('GITHUB_TOKEN', None)):
+with gqlmod.with_provider('github', token=os.environ.get('INPUT_GITHUB_TOKEN', None)):
     res = ghstatus.start_check_run(repo=REPO_ID, sha=GIT_SHA)
 
     if not res.errors:
