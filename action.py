@@ -42,13 +42,10 @@ os.chdir(os.environ['GITHUB_WORKSPACE'])
 
 with gqlmod.with_provider('github', token=os.environ.get('INPUT_GITHUB_TOKEN', None)):
     res = ghstatus.start_check_run(repo=REPO_ID, sha=GIT_SHA)
-
-    if not res.errors:
-        run_id = res.data['checkRun']['id']
-    else:
-        # User probably didn't give us a GITHUB_TOKEN, so should be an authentication error
-        print(res.errors)
-        run_id = None
+    assert not res.errors
+    print(res.data)
+    run_id = res.data['checkRun']['id']
+    # FIXME: Handle the case if we don't have permissions
 
     buffer = []
 
