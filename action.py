@@ -12,6 +12,9 @@ import traceback
 
 import gqlmod.importer
 
+print(os.getcwd())
+print(os.listdir())
+
 import ghstatus
 
 
