@@ -103,7 +103,7 @@ def scan_files():
 os.chdir(os.environ['GITHUB_WORKSPACE'])
 
 with gqlmod.with_provider('github', token=os.environ.get('INPUT_GITHUB_TOKEN', None)):
-    with OutputManager() as output:
+    with OutputManager(REPO_ID, GIT_SHA) as output:
         for fname, line, col, msg in scan_files():
             print(f"{fname}:{line}:{col}:{msg}", file=output)
             output.annotate(fname, line, col, msg)
