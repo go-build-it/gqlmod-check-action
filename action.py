@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/local/bin/python -vvv
 import sys
 sys.path.insert(0, '/')
 
