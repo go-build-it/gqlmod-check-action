@@ -13,7 +13,7 @@ mutation start_check_run($repo:ID!, $sha:GitObjectID!) {
     }
 }
 
-mutation append_check_run($repo:ID!, $checkrun:ID!, $annotations:[CheckAnnotationData!]) {
+mutation append_check_run($repo:ID!, $checkrun:ID!, $text:String, $annotations:[CheckAnnotationData!]) {
     updateCheckRun(input: {
         repositoryId: $repo
         checkRunId: $checkrun
@@ -21,6 +21,7 @@ mutation append_check_run($repo:ID!, $checkrun:ID!, $annotations:[CheckAnnotatio
             title: "gqlmod check"
             summary: "Running..."
             annotations: $annotations
+            text: $text
         }
     }) {
         checkRun {

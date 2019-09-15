@@ -46,13 +46,15 @@ with gqlmod.with_provider('github', token=os.environ.get('INPUT_GITHUB_TOKEN', N
     run_id = res.data['createCheckRun']['checkRun']['id']
     # FIXME: Handle the case if we don't have permissions
 
-    buffer = []
+    annotations = []
+    text = ""
 
     count = 0
     for fname, line, col, msg in scan_files():
         count += 1
-        print(f"{fname}:{line}:{col}:{msg}")
-        buffer.append({
+        line = f"{fname}:{line}:{col}:{msg}"
+        print(line)
+        annotations.append({
             'path': fname,
             'location': {
                 'startLine': line,
@@ -63,17 +65,27 @@ with gqlmod.with_provider('github', token=os.environ.get('INPUT_GITHUB_TOKEN', N
             'annotationLevel': 'FAILURE',
             'message': msg,
         })
+        text += line + "\n"
 
-        if len(buffer) >= 40 and run_id:
+        if len(annotations) >= 40 and run_id:
             res = ghstatus.append_check_run(
                 repo=REPO_ID,
                 checkrun=run_id,
-                annotations=buffer,
+                text=text,
+                annotations=annotations,
             )
             assert not res.errors
-            buffer = []
+            annotations = []
+            text = ""
 
     if run_id:
+        if not count:
+            res = ghstatus.append_check_run(
+                repo=REPO_ID,
+                checkrun=run_id,
+                text="No errors found\n",
+            )
+            assert not res.errors
         ghstatus.complete_check_run(
             repo=REPO_ID,
             checkrun=run_id,
