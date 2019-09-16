@@ -62,16 +62,6 @@ class OutputManager:
         return self
 
     def __exit__(self, *_):
-        if not self.total_annotations:
-            self.write("No problems found\n")
-        self.flush()
-        ghstatus.complete_check_run(
-            repo=self.repo_id,
-            checkrun=self.run_id,
-            state='SUCCESS' if self.success else 'FAILURE'
-        )
-
-    def flush(self):
         # TODO: L10n
         if self.total_annotations == 0:
             summary = "No problems found"
@@ -79,12 +69,21 @@ class OutputManager:
             summary = "1 problem found"
         else:
             summary = f"{self.total_annotations} problems found"
+        print(summary, file=self)
+        self.flush()
+        ghstatus.complete_check_run(
+            repo=self.repo_id,
+            checkrun=self.run_id,
+            summary=summary,
+            state='SUCCESS' if self.success else 'FAILURE'
+        )
+
+    def flush(self):
         res = ghstatus.append_check_run(
             repo=self.repo_id,
             checkrun=self.run_id,
             text=self.output,
             annotations=self.annotations,
-            summary=summary
         )
         assert not res.errors
         self.annotations = []
