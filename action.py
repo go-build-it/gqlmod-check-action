@@ -75,7 +75,7 @@ class OutputManager:
             repo=self.repo_id,
             checkrun=self.run_id,
             summary=summary,
-            state='SUCCESS' if self.success else 'FAILURE'
+            state='FAILURE' if self.total_annotations else 'SUCCESS'
         )
 
     def flush(self):
