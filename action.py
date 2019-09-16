@@ -30,7 +30,7 @@ class OutputManager:
         self.git_sha = sha
         self.annotations = []
         self.output = ""
-        self.success = True
+        self.total_annotations = 0
         self.run_id = None
 
     def write(self, s):
@@ -50,7 +50,7 @@ class OutputManager:
             'annotationLevel': 'FAILURE',
             'message': msg,
         })
-        self.success = False
+        self.total_annotations += 1
         if len(self.annotations) > 40:
             self.flush()
 
@@ -62,7 +62,7 @@ class OutputManager:
         return self
 
     def __exit__(self, *_):
-        if self.success:
+        if not self.total_annotations:
             self.write("No problems found\n")
         self.flush()
         ghstatus.complete_check_run(
@@ -72,11 +72,19 @@ class OutputManager:
         )
 
     def flush(self):
+        # TODO: L10n
+        if self.total_annotations == 0:
+            summary = "No problems found"
+        elif self.total_annotations == 1:
+            summary = "1 problem found"
+        else:
+            summary = f"{self.total_annotations} problems found"
         res = ghstatus.append_check_run(
             repo=self.repo_id,
             checkrun=self.run_id,
             text=self.output,
             annotations=self.annotations,
+            summary=summary
         )
         assert not res.errors
         self.annotations = []
