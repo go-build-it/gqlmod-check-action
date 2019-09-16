@@ -59,6 +59,7 @@ class OutputManager:
         assert not res.errors
         self.run_id = res.data['createCheckRun']['checkRun']['id']
         # FIXME: Handle the case if we don't have permissions
+        return self
 
     def __exit__(self, *_):
         if self.success:
