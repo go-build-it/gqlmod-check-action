@@ -4,7 +4,7 @@ gqlmod checker
 Example:
 
 ```yaml
-name: gqlmod check
+name: gqlmod
 
 on: push
 
