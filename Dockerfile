@@ -5,8 +5,7 @@ LABEL "homepage"="https://github.com/gqlmod/gqlmod"
 LABEL "maintainer"="Jamie Bliss <jamie@ivyleav.es>"
 
 RUN pip install --no-cache-dir --disable-pip-version-check \
-        "git+https://github.com/gqlmod/gqlmod.git@master#egg=gqlmod" \
-        gqlmod-cirrusci gqlmod-github
+        gqlmod>=0.8 gqlmod-cirrusci gqlmod-github>=0.6
 
 COPY LICENSE README.md *.py *.gql /
 
