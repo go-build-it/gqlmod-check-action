@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v1
         with:
           fetch-depth: 1
-      - uses: gqlmod/check-action@master
+      - uses: gqlmod/check-action@trunk
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
